@@ -15,8 +15,8 @@ from data_loader import DataLoader
 
 def main():
     # Define the paths based on your project tree
-    raw_data_dir = "/home/geuba03p/weta_project/burrow_temperature/raw_data"
-    output_csv = "/home/geuba03p/weta_project/burrow_temperature/data/initial_wide_format.csv"
+    raw_data_dir = r"/home/geuba03p/google-drive/Grey_Weta_Project/thoracica temps/raw_data_formatted"
+    output_csv = r"/home/geuba03p/google-drive/Grey_Weta_Project/thoracica temps/data/initial_wide_format.csv"
     
     # Create a DataLoader instance which will:
     # - Scan raw_data_dir for all data files (using DataFile for parsing)
