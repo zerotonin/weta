@@ -80,6 +80,7 @@ class DataFile:
         # Use header marker for column names
         columns = [col.strip() for col in header_marker.split(',')]
         data_str = "\n".join(lines[start_idx:]).strip()
+        data_str = data_str.replace("\u202f", " ")
         if not data_str:
             raise ValueError(f"No data found in file: {self.file_name}")
         
@@ -91,12 +92,18 @@ class DataFile:
         # Try to parse the first column ("Date/Time") as datetime using our expected format
         df["parsed_dt"] = pd.to_datetime(df["Date/Time"], format='%d/%m/%y %I:%M:%S %p', errors='coerce')
         
-        # If most of the first column fails to parse, try the second column instead.
+        # If most of the first column fails to parse, try a four digit year format
+        if df["parsed_dt"].isna().sum() > len(df)/2:
+            df["parsed_dt"] = pd.to_datetime(df["Date/Time"], format='%d/%m/%Y %I:%M:%S %p', errors='coerce')
+        # If most of the first column fails to parse, trysecond column
         if df["parsed_dt"].isna().sum() > len(df)/2:
             df["parsed_dt"] = pd.to_datetime(df.iloc[:, 1], format='%d/%m/%y %I:%M:%S %p', errors='coerce')
             measurement_col = df.columns[0]
         else:
             measurement_col = df.columns[-1]
+        # If still NaT, raise an error
+        if df["parsed_dt"].isna().all():
+            raise ValueError(f"Could not parse any datetime values in file: {self.file_name}")
         
         # Drop the original "Date/Time" and "Unit" columns if they exist
         df = df.drop(columns=["Date/Time", "Unit"], errors='ignore')
